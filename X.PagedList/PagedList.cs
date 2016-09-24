@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Data.Entity;
 
 namespace X.PagedList
 {
@@ -61,12 +62,15 @@ namespace X.PagedList
 							? TotalItemCount
 							: numberOfLastItemOnPage;
 
-			// add items to internal list
-			if (superset != null && TotalItemCount > 0)
-				Subset.AddRange(pageNumber == 1
-                    ? superset.Take(pageSize).ToList()
-                    : superset.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList()
-                );
+
+           
+            // add items to internal list
+		    if (superset != null && TotalItemCount > 0)
+		    {
+		        var take = pageSize;
+		        var skip = ((pageNumber - 1)*pageSize);
+				Subset.AddRange(pageNumber == 1 ? superset.Take(() => take).ToList() : superset.Skip(() => skip).Take(() => take).ToList() );
+		    }
         }
 
         /// <summary>
@@ -104,7 +108,7 @@ namespace X.PagedList
             // add items to internal list
             if (superset != null && TotalItemCount > 0)
                 Subset.AddRange(pageNumber == 1 ? superset.Take(pageSize).ToList()
-					: superset.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList()
+					: superset.Skip(() => (pageNumber - 1) * pageSize).Take(() => pageSize).ToList()
 				);
 		}
 		
